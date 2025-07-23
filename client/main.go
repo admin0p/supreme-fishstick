@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"time"
 
+	dataframe "github.com/admin0p/supreme-fishstick/proto"
 	"github.com/quic-go/quic-go"
+	"google.golang.org/protobuf/proto"
 )
 
 /*
@@ -28,22 +29,35 @@ func main() {
 	}
 	fmt.Println("connection accepted")
 
-	newStream, err := c.OpenStream()
+	newStream, err := c.AcceptStream(ctx)
 	if err != nil {
-		fmt.Println("Failed to open stream")
+		fmt.Println("Failed to Accept stream")
 		return
 	}
-	newStream.Write([]byte("hello"))
-	// newStream.CancelWrite(quic.StreamErrorCode(quic.NoError))
-	time.Sleep(1 * time.Second)
-	fmt.Println(" \n opened new stream")
-	newStream.Close()
-	// receive message from server
-	// buff := make([]byte, 1024)
-	// readIndex, err := newStream.Read(buff)
-	// if err != nil {
-	// 	fmt.Println("read failed ==<> ", err)
-	// 	return
-	// }
-	// fmt.Println("ack message received ==> ", readIndex, " message <> ", string(buff))
+
+	sizeByte := make([]byte, 1)
+
+	_, err = newStream.Read(sizeByte)
+	if err != nil {
+		fmt.Println("Failed to read message")
+		return
+	}
+
+	readBuffer := make([]byte, int(sizeByte[0]))
+	_, err = newStream.Read(readBuffer)
+	if err != nil {
+		fmt.Println("Failed to read message")
+		return
+	}
+
+	message := dataframe.MockDataFrame{}
+
+	err = proto.Unmarshal(readBuffer, &message)
+	if err != nil {
+		fmt.Println("Failed to read the proto buffer")
+		return
+	}
+
+	// fmt.Println("readBytes ==> ", readBytes)
+	fmt.Println("data ==?> ", message.GetData())
 }

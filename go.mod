@@ -3,7 +3,11 @@ module github.com/admin0p/supreme-fishstick
 go 1.23.2
 
 require (
-	github.com/quic-go/quic-go v0.53.0 // indirect
+	github.com/quic-go/quic-go v0.53.0
+	google.golang.org/protobuf v1.33.0
+)
+
+require (
 	go.uber.org/mock v0.5.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/mod v0.18.0 // indirect

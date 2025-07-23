@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package DataFrame;
+
+option go_package = "./proto;dataframe";
+
+message MockDataFrame {
+    string messageId = 1;
+    string from = 2;
+    string to = 3;
+    string type = 4;
+    string timestamp = 5;
+    string Data = 6;
+}
