@@ -21,32 +21,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MockDataFrame struct {
+// From server to client
+type STREAM_HELLO struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=messageId,proto3" json:"messageId,omitempty"`
-	From          string                 `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
-	To            string                 `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`
-	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
-	Timestamp     string                 `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Data          string                 `protobuf:"bytes,6,opt,name=Data,proto3" json:"Data,omitempty"`
+	StreamId      int64                  `protobuf:"varint,1,opt,name=streamId,proto3" json:"streamId,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *MockDataFrame) Reset() {
-	*x = MockDataFrame{}
+func (x *STREAM_HELLO) Reset() {
+	*x = STREAM_HELLO{}
 	mi := &file_proto_dataFrame_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *MockDataFrame) String() string {
+func (x *STREAM_HELLO) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MockDataFrame) ProtoMessage() {}
+func (*STREAM_HELLO) ProtoMessage() {}
 
-func (x *MockDataFrame) ProtoReflect() protoreflect.Message {
+func (x *STREAM_HELLO) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_dataFrame_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,49 +55,114 @@ func (x *MockDataFrame) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use MockDataFrame.ProtoReflect.Descriptor instead.
-func (*MockDataFrame) Descriptor() ([]byte, []int) {
+// Deprecated: Use STREAM_HELLO.ProtoReflect.Descriptor instead.
+func (*STREAM_HELLO) Descriptor() ([]byte, []int) {
 	return file_proto_dataFrame_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *MockDataFrame) GetMessageId() string {
+func (x *STREAM_HELLO) GetStreamId() int64 {
+	if x != nil {
+		return x.StreamId
+	}
+	return 0
+}
+
+func (x *STREAM_HELLO) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// actual message frame
+type MESSAGE_FRAME struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=messageId,proto3" json:"messageId,omitempty"`
+	From          string                 `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
+	To            string                 `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`
+	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+	Timestamp     string                 `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	MessageFormat string                 `protobuf:"bytes,6,opt,name=messageFormat,proto3" json:"messageFormat,omitempty"`
+	Message       string                 `protobuf:"bytes,7,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MESSAGE_FRAME) Reset() {
+	*x = MESSAGE_FRAME{}
+	mi := &file_proto_dataFrame_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MESSAGE_FRAME) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MESSAGE_FRAME) ProtoMessage() {}
+
+func (x *MESSAGE_FRAME) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_dataFrame_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MESSAGE_FRAME.ProtoReflect.Descriptor instead.
+func (*MESSAGE_FRAME) Descriptor() ([]byte, []int) {
+	return file_proto_dataFrame_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MESSAGE_FRAME) GetMessageId() string {
 	if x != nil {
 		return x.MessageId
 	}
 	return ""
 }
 
-func (x *MockDataFrame) GetFrom() string {
+func (x *MESSAGE_FRAME) GetFrom() string {
 	if x != nil {
 		return x.From
 	}
 	return ""
 }
 
-func (x *MockDataFrame) GetTo() string {
+func (x *MESSAGE_FRAME) GetTo() string {
 	if x != nil {
 		return x.To
 	}
 	return ""
 }
 
-func (x *MockDataFrame) GetType() string {
+func (x *MESSAGE_FRAME) GetType() string {
 	if x != nil {
 		return x.Type
 	}
 	return ""
 }
 
-func (x *MockDataFrame) GetTimestamp() string {
+func (x *MESSAGE_FRAME) GetTimestamp() string {
 	if x != nil {
 		return x.Timestamp
 	}
 	return ""
 }
 
-func (x *MockDataFrame) GetData() string {
+func (x *MESSAGE_FRAME) GetMessageFormat() string {
 	if x != nil {
-		return x.Data
+		return x.MessageFormat
+	}
+	return ""
+}
+
+func (x *MESSAGE_FRAME) GetMessage() string {
+	if x != nil {
+		return x.Message
 	}
 	return ""
 }
@@ -109,14 +171,18 @@ var File_proto_dataFrame_proto protoreflect.FileDescriptor
 
 const file_proto_dataFrame_proto_rawDesc = "" +
 	"\n" +
-	"\x15proto/dataFrame.proto\x12\tDataFrame\"\x97\x01\n" +
-	"\rMockDataFrame\x12\x1c\n" +
+	"\x15proto/dataFrame.proto\x12\tDataFrame\"D\n" +
+	"\fSTREAM_HELLO\x12\x1a\n" +
+	"\bstreamId\x18\x01 \x01(\x03R\bstreamId\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\xc3\x01\n" +
+	"\rMESSAGE_FRAME\x12\x1c\n" +
 	"\tmessageId\x18\x01 \x01(\tR\tmessageId\x12\x12\n" +
 	"\x04from\x18\x02 \x01(\tR\x04from\x12\x0e\n" +
 	"\x02to\x18\x03 \x01(\tR\x02to\x12\x12\n" +
 	"\x04type\x18\x04 \x01(\tR\x04type\x12\x1c\n" +
-	"\ttimestamp\x18\x05 \x01(\tR\ttimestamp\x12\x12\n" +
-	"\x04Data\x18\x06 \x01(\tR\x04DataB\x13Z\x11./proto;dataframeb\x06proto3"
+	"\ttimestamp\x18\x05 \x01(\tR\ttimestamp\x12$\n" +
+	"\rmessageFormat\x18\x06 \x01(\tR\rmessageFormat\x12\x18\n" +
+	"\amessage\x18\a \x01(\tR\amessageB\x13Z\x11./proto;dataframeb\x06proto3"
 
 var (
 	file_proto_dataFrame_proto_rawDescOnce sync.Once
@@ -130,9 +196,10 @@ func file_proto_dataFrame_proto_rawDescGZIP() []byte {
 	return file_proto_dataFrame_proto_rawDescData
 }
 
-var file_proto_dataFrame_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_proto_dataFrame_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_dataFrame_proto_goTypes = []any{
-	(*MockDataFrame)(nil), // 0: DataFrame.MockDataFrame
+	(*STREAM_HELLO)(nil),  // 0: DataFrame.STREAM_HELLO
+	(*MESSAGE_FRAME)(nil), // 1: DataFrame.MESSAGE_FRAME
 }
 var file_proto_dataFrame_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -153,7 +220,7 @@ func file_proto_dataFrame_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_dataFrame_proto_rawDesc), len(file_proto_dataFrame_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"os"
 
+	"github.com/admin0p/supreme-fishstick/logger"
 	dataframe "github.com/admin0p/supreme-fishstick/proto"
+	"github.com/admin0p/supreme-fishstick/serializer"
 	"github.com/quic-go/quic-go"
-	"google.golang.org/protobuf/proto"
 )
 
 /*
@@ -34,30 +38,66 @@ func main() {
 		fmt.Println("Failed to Accept stream")
 		return
 	}
+	defer newStream.Close()
 
-	sizeByte := make([]byte, 1)
+	message := dataframe.STREAM_HELLO{}
 
-	_, err = newStream.Read(sizeByte)
+	err = serializer.DeserializePackage(ctx, newStream, &message)
 	if err != nil {
-		fmt.Println("Failed to read message")
+		logger.Log.Error("Failed to deserialize package", "stack", err)
 		return
 	}
+	fmt.Println("received Message ==> ", message.GetStreamId(), message.GetMessage())
 
-	readBuffer := make([]byte, int(sizeByte[0]))
-	_, err = newStream.Read(readBuffer)
-	if err != nil {
-		fmt.Println("Failed to read message")
-		return
+	for {
+		input := ReadInput()
+		if input == "quit" {
+			break
+		}
+
+		payload := dataframe.MESSAGE_FRAME{
+			Message:       input,
+			From:          c.LocalAddr().String(),
+			To:            c.RemoteAddr().String(),
+			MessageFormat: "String",
+			Type:          "message",
+		}
+
+		err = serializer.SerializePayloadAndSend(ctx, newStream, &payload)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		ackMessage := dataframe.STREAM_HELLO{}
+
+		err = serializer.DeserializePackage(ctx, newStream, &ackMessage)
+
+		if err != nil {
+			if err == io.EOF {
+				logger.Log.Info("Stream closed")
+				return
+			}
+			logger.Log.Error("Failed to deserialize package", "stack", err)
+			return
+		}
+
+		if ackMessage.GetMessage() != "ack" {
+			fmt.Println("message delivery failed not acked")
+			return
+		}
+
 	}
+}
 
-	message := dataframe.MockDataFrame{}
+func ReadInput() string {
 
-	err = proto.Unmarshal(readBuffer, &message)
+	fmt.Println("Enter you message")
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
 	if err != nil {
-		fmt.Println("Failed to read the proto buffer")
-		return
+		fmt.Println(err)
+		return ""
 	}
-
-	// fmt.Println("readBytes ==> ", readBytes)
-	fmt.Println("data ==?> ", message.GetData())
+	return input
 }
