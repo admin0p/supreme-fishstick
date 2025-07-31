@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package DataFrame;
+
+option go_package = "./proto;dataframe";
+
+
+// This is the frame that registers a client 
+message ADD_CLIENT_REQUEST_FRAME {
+    string uniqueClientId = 1; // unique identifier for the client from the client
+    string secret = 2; // secret for authentication works like auth
+    int64 packId = 3; // unique identifier for the packet 
+    int32 streamId = 4; // stream identifier
+}
+
+// This is the frame the client sends request to authenticate itself with the server
+message CLIENT_AUTH_FRAME {
+    string uniqueClientId = 1; // unique identifier for the client from the client
+    string streamId = 2; // stream identifier
+    int64 packId = 3; // unique identifier for the packet
+    int32 secret = 4;
+}
+
+// This is the frame that the server sends to the client after successful authentication
+message CLIENT_AUTH_RESPONSE_FRAME {
+    string sfClientId = 1; // id assigned by server...it is like a domain id  clientID@domain
+    string token = 2; // token for authentication
+    int64 packId = 3; // unique identifier for the packet
+    int32 streamId = 4; // stream identifier
+}

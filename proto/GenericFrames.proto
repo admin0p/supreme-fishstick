@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package DataFrame;
+
+option go_package = "./proto;dataframe";
+
+
+// ACK Frame to send any sort of ack 
+message ACK_FRAME {
+    int64  packId = 1; // unique identifier for the packet
+    int32 streamId = 2; // stream identifier
+    bool ackStatus = 3; // true for success, false for failure
+}
+
+// This is a generic error frame that the server sends to the client on any error
+message ERROR_FRAME {
+    string sfClientId = 1; // client identifier
+    string type = 2; // type of err
+    string messageFrame = 3; // message frame that caused the error
+    string stack = 4; // stack trace
+    int64 packId = 5; // unique identifier for the message
+    int32 code = 6; // error code
+    int32 streamId = 7; // stream identifier
+}
+
+// actual message frame
+message MESSAGE_FRAME {
+    string token = 1; // token for authentication
+    string messageId = 2; // unique identifier for the message
+    string from = 3; // client ID ( the ID provided by the client )
+    string to = 4; // client ID | SERVER ( the ID provided by the client )
+    string type = 5; // type of message ( e.g. text, image, file, etc. )
+    string timestamp = 6; // timestamp of the message in ISO 8601 format
+    string messageFormat = 7; // format of the message ( e.g. text, json, xml, etc. )
+    string message = 8;  // the actual message content
+    int64 packId = 9; // unique identifier for the message 
+    int32 streamId = 10; // stream identifier
+}

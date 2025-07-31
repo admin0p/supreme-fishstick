@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func DeserializePackage(ctx context.Context, reader io.Reader, result proto.Message) error {
+func Receive(ctx context.Context, reader io.Reader, result proto.Message) error {
 
 	sizeByte := make([]byte, 1)
 
@@ -32,7 +32,7 @@ func DeserializePackage(ctx context.Context, reader io.Reader, result proto.Mess
 	return nil
 }
 
-func SerializePayloadAndSend(ctx context.Context, writer io.Writer, payload proto.Message) error {
+func Send(ctx context.Context, writer io.Writer, payload proto.Message) error {
 
 	payloadByte, err := proto.Marshal(payload)
 	if err != nil {

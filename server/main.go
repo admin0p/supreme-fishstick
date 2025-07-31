@@ -39,7 +39,7 @@ func main() {
 func ConnectionHandler(conn *quic.Conn) {
 
 	ctx := context.Background()
-	//start a stream
+
 	stream, err := StartStream(ctx, conn)
 	if err != nil {
 		logger.Log.Error("Failed to start the stream", "stack", err)
@@ -50,27 +50,23 @@ func ConnectionHandler(conn *quic.Conn) {
 	for {
 
 		messageFrame := dataframe.MESSAGE_FRAME{}
-		err = serializer.DeserializePackage(ctx, stream, &messageFrame)
+		err = serializer.Receive(ctx, stream, &messageFrame)
 		if err != nil {
 			logger.Log.Error("Failed to deserialize", "stack", err)
 			return
 		}
-		logger.Log.Info(
-			"received ===> ",
-			"from", messageFrame.GetFrom(),
-			"to", messageFrame.GetTo(),
-			"type", messageFrame.GetType(),
-			"message_format", messageFrame.GetMessageFormat(),
-			"msg", messageFrame.GetMessage(),
-		)
-
 		if messageFrame.GetMessage() == "quit\n" {
 			logger.Log.Info("received quit signal")
 			return
 		}
 
-		ackFrame := dataframe.STREAM_HELLO{Message: "ack"}
-		err = serializer.SerializePayloadAndSend(ctx, stream, &ackFrame)
+		ackFrame := dataframe.ACK_FRAME{
+			PackId:    messageFrame.GetPackId() + 1,
+			StreamId:  int32(stream.StreamID()),
+			AckStatus: true,
+		}
+
+		err = serializer.Receive(ctx, stream, &ackFrame)
 		if err != nil {
 			logger.Log.Error("Failed to send ack", "stack", err)
 			return
@@ -87,12 +83,13 @@ func StartStream(ctx context.Context, conn *quic.Conn) (*quic.Stream, error) {
 		return nil, err
 	}
 
-	baseHelloFrame := dataframe.STREAM_HELLO{
-		StreamId: int64(stream.StreamID()),
-		Message:  "Stream hello",
+	baseHelloFrame := dataframe.ACK_FRAME{
+		StreamId:  int32(stream.StreamID()),
+		PackId:    1,
+		AckStatus: true,
 	}
 
-	err = serializer.SerializePayloadAndSend(ctx, stream, &baseHelloFrame)
+	err = serializer.Send(ctx, stream, &baseHelloFrame)
 	if err != nil {
 		logger.Log.Error("Failed to serialize and send ", "stack", err)
 		return nil, err

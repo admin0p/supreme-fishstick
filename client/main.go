@@ -40,14 +40,14 @@ func main() {
 	}
 	defer newStream.Close()
 
-	message := dataframe.STREAM_HELLO{}
+	message := dataframe.ACK_FRAME{}
 
-	err = serializer.DeserializePackage(ctx, newStream, &message)
+	err = serializer.Receive(ctx, newStream, &message)
 	if err != nil {
 		logger.Log.Error("Failed to deserialize package", "stack", err)
 		return
 	}
-	fmt.Println("received Message ==> ", message.GetStreamId(), message.GetMessage())
+	fmt.Println("received Message ", message.GetStreamId(), message.GetAckStatus(), message.GetPackId())
 
 	for {
 		input := ReadInput()
@@ -59,19 +59,20 @@ func main() {
 			Message:       input,
 			From:          c.LocalAddr().String(),
 			To:            c.RemoteAddr().String(),
-			MessageFormat: "String",
+			MessageFormat: "string",
 			Type:          "message",
+			PackId:        message.GetPackId() + 1,
 		}
 
-		err = serializer.SerializePayloadAndSend(ctx, newStream, &payload)
+		err = serializer.Send(ctx, newStream, &payload)
 		if err != nil {
 			fmt.Println(err)
 			break
 		}
 
-		ackMessage := dataframe.STREAM_HELLO{}
+		ackMessage := dataframe.ACK_FRAME{}
 
-		err = serializer.DeserializePackage(ctx, newStream, &ackMessage)
+		err = serializer.Receive(ctx, newStream, &ackMessage)
 
 		if err != nil {
 			if err == io.EOF {
@@ -82,7 +83,7 @@ func main() {
 			return
 		}
 
-		if ackMessage.GetMessage() != "ack" {
+		if !ackMessage.GetAckStatus() {
 			fmt.Println("message delivery failed not acked")
 			return
 		}
