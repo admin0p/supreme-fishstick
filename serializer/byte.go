@@ -12,13 +12,13 @@ func Receive(ctx context.Context, reader io.Reader, result proto.Message) error 
 
 	sizeByte := make([]byte, 1)
 
-	sizeRead, err := reader.Read(sizeByte)
+	_, err := reader.Read(sizeByte)
 	if err != nil {
 		logger.Log.Error("Failed to read the size byte")
 		return err
 	}
 
-	logger.Log.Info("Read the size byte: ", "byteSize", sizeRead, "size", sizeByte)
+	logger.Log.Info("Read the size byte: ", "size", int(sizeByte[0]))
 
 	payloadBuffer := make([]byte, sizeByte[0])
 
