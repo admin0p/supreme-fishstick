@@ -8,7 +8,7 @@ import (
 )
 
 type ProtoHandler struct {
-	db string // Database connection string or identifier
+	Db string // Database connection string or identifier
 }
 
 func (ph *ProtoHandler) ProcessStream(ctx context.Context, sfStreamHandler *SF_STREAM_HANDLER) error {

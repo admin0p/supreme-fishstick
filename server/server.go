@@ -53,18 +53,7 @@ process the next subsequent request in non blocking fashion
 */
 func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode int) {
 
-	if qsi.Tls == nil {
-		qsi.Tls = mock.GenerateDummyTLSConfig()
-	}
-	qsi.ActiveConn = make(ACTIVE_CLIENT_CONN)
-	// default package handler
-	if qsi.Streamer == nil {
-		qsi.Streamer = &ProtoHandler{}
-	}
-
-	if packagerCode == 1 {
-		qsi.PackageEncoder = &packager.PROTO_ENCODE{}
-	}
+	qsi.assignServerDefaults(packagerCode)
 
 	bindAddress := qsi.generateListenAddress()
 	quicListener, err := quic.ListenAddr(
@@ -78,7 +67,7 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 		panic(err)
 	}
 	logger.Log.Info("QUIC server started", "address", bindAddress)
-	clientCount := 0
+
 	for {
 		connContext := context.Background()
 
@@ -100,9 +89,8 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 		logger.Log.Info("New connection accepted", "remoteAddr", newConn.Conn.RemoteAddr().String(), "localAddr", newConn.Conn.LocalAddr().String())
 
 		// create a new clientId ..ideally it should be done after the auth but this is a test
-		clientCount++
-		clientId := `client-` + strconv.Itoa(clientCount)
-		qsi.ActiveConn[clientId] = newConn
+		clientAddr := newConn.Conn.RemoteAddr().String()
+		qsi.ActiveConn[clientAddr] = newConn
 
 		ackFrame := &dataframe.ACK_FRAME{
 			StreamId:  int32(stream.StreamID()),
@@ -115,7 +103,7 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 			newConn.Conn.CloseWithError(quic.ApplicationErrorCode(quic.InternalError), "closing connection")
 			stream.Close()
 			delete(newConn.ActiveStream, stream)
-			delete(qsi.ActiveConn, clientId)
+			delete(qsi.ActiveConn, clientAddr)
 			continue
 		}
 
@@ -126,6 +114,8 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 		}
 		//handle connection request
 		for {
+			// this should be a internal function that construct the request obj and passes it to the handler
+			// the function should be a closure type that can take in custom handler and process request based on that
 			qsi.Streamer.ProcessStream(connContext, &newSfStreamHandler)
 		}
 
@@ -143,5 +133,24 @@ func (qsi *QUIC_SERVER_INSTANCE) generateListenAddress() string {
 	}
 
 	return qsi.HostName + ":" + strconv.Itoa(qsi.Port)
+
+}
+
+func (qsi *QUIC_SERVER_INSTANCE) assignServerDefaults(packagerCode int) {
+	if qsi.Tls == nil {
+		qsi.Tls = mock.GenerateDummyTLSConfig()
+	}
+
+	if qsi.ActiveConn == nil {
+		qsi.ActiveConn = make(ACTIVE_CLIENT_CONN)
+	}
+
+	if qsi.Streamer == nil {
+		qsi.Streamer = &ProtoHandler{}
+	}
+
+	if packagerCode == 1 {
+		qsi.PackageEncoder = &packager.PROTO_ENCODE{}
+	}
 
 }
