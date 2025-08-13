@@ -9,41 +9,29 @@ import (
 	"sync"
 
 	"github.com/admin0p/supreme-fishstick/logger"
-	dataframe "github.com/admin0p/supreme-fishstick/proto"
 	mock "github.com/admin0p/supreme-fishstick/server/mocks"
-	"github.com/admin0p/supreme-fishstick/server/packager"
+	"github.com/admin0p/supreme-fishstick/server/packer"
 	"github.com/quic-go/quic-go"
 )
 
-type ACTIVE_CLIENT_CONN map[string]*quic_conn
+type ACTIVE_CLIENT_CONN map[string]*QuicConn
+type ACTIVE_STREAM map[string]*quic.Stream
 
-type SF_STREAM_HANDLER struct {
-	Stream         *quic.Stream
-	ActiveConn     *ACTIVE_CLIENT_CONN
-	PackageHandler Packager
-}
-type StreamHandler interface {
-	ProcessStream(ctx context.Context, streamHandler *SF_STREAM_HANDLER) error
-}
+// This is not required as it is only used in processing a stream which is a method of QUIC_SERVER_INSTANCE so we can use that instead
 
-type Packager interface {
-	SendPackage(ctx context.Context, reader io.Writer, data any) (int, error)
-	ReceivePackage(ctx context.Context, writer io.Reader, result any) (int, error)
-}
-
-type quic_conn struct {
+type QuicConn struct {
 	Conn           *quic.Conn
 	UpstreamServer *QUIC_SERVER_INSTANCE
-	ActiveStream   map[*quic.Stream]struct{}
+	ActiveStream   ACTIVE_STREAM
 }
 
 type QUIC_SERVER_INSTANCE struct {
 	HostName       string
 	Port           int
 	Tls            *tls.Config
-	Streamer       StreamHandler
+	Handler        HANDLER
 	Wg             sync.WaitGroup
-	PackageEncoder Packager
+	PackageEncoder packer.PACKER
 	ActiveConn     ACTIVE_CLIENT_CONN
 }
 
@@ -71,52 +59,30 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 	for {
 		connContext := context.Background()
 
-		newConn := &quic_conn{UpstreamServer: qsi, ActiveStream: make(map[*quic.Stream]struct{})}
+		newConn := &QuicConn{UpstreamServer: qsi, ActiveStream: make(ACTIVE_STREAM)}
 		newConn.Conn, err = quicListener.Accept(connContext)
 		if err != nil {
 			logger.Log.Error("Failed to accept connection", "stack", err)
 			continue
 		}
 
-		stream, err := newConn.Conn.OpenStreamSync(connContext)
+		stream, err := newConn.Conn.AcceptStream(connContext)
 		if err != nil {
 			logger.Log.Error("Failed to start stream", "stack", err)
 			continue
 		}
+		newConn.ActiveStream["default"] = stream
 
-		newConn.ActiveStream[stream] = struct{}{}
-
-		logger.Log.Info("New connection accepted", "remoteAddr", newConn.Conn.RemoteAddr().String(), "localAddr", newConn.Conn.LocalAddr().String())
-
-		// create a new clientId ..ideally it should be done after the auth but this is a test
+		// only when a stream has started we can consider the connection as active
 		clientAddr := newConn.Conn.RemoteAddr().String()
 		qsi.ActiveConn[clientAddr] = newConn
+		logger.Log.Info("New connection accepted", "remoteAddr", newConn.Conn.RemoteAddr().String(), "localAddr", newConn.Conn.LocalAddr().String())
 
-		ackFrame := &dataframe.ACK_FRAME{
-			StreamId:  int32(stream.StreamID()),
-			PackId:    1,
-			AckStatus: true,
-		}
-		_, err = qsi.PackageEncoder.SendPackage(connContext, stream, ackFrame)
-		if err != nil {
-			// this is a clean up operation for this connection
-			newConn.Conn.CloseWithError(quic.ApplicationErrorCode(quic.InternalError), "closing connection")
-			stream.Close()
-			delete(newConn.ActiveStream, stream)
-			delete(qsi.ActiveConn, clientAddr)
-			continue
-		}
-
-		newSfStreamHandler := SF_STREAM_HANDLER{
-			Stream:         stream,
-			ActiveConn:     &qsi.ActiveConn,
-			PackageHandler: qsi.PackageEncoder,
-		}
 		//handle connection request
 		for {
 			// this should be a internal function that construct the request obj and passes it to the handler
 			// the function should be a closure type that can take in custom handler and process request based on that
-			qsi.Streamer.ProcessStream(connContext, &newSfStreamHandler)
+			//qsi.Streamer.ProcessStream(connContext, &newSfStreamHandler)
 		}
 
 	}
@@ -145,12 +111,42 @@ func (qsi *QUIC_SERVER_INSTANCE) assignServerDefaults(packagerCode int) {
 		qsi.ActiveConn = make(ACTIVE_CLIENT_CONN)
 	}
 
-	if qsi.Streamer == nil {
-		qsi.Streamer = &ProtoHandler{}
+	// if qsi.Streamer == nil {
+	// 	qsi.Streamer = &ProtoHandler{}
+	// }
+
+	// if packagerCode == 1 {
+	// 	qsi.PackageEncoder = &packager.PROTO_ENCODE{}
+	// }
+
+}
+
+type HANDLER func(ctx context.Context, request *packer.REQUEST_OBJ, resp packer.RESPONSE_OBJ) error
+
+// this function should be a closure type that can take in custom handler and process request based on that
+func (qc *QuicConn) serve(ctx context.Context) error {
+	//TODO:  handle the nil case and assign default handler
+	// CREATE a REQUEST OBJECT and a RESPONSE object
+
+	//1 . get default stream from the connection
+	defaultStream := qc.ActiveStream["default"]
+	if defaultStream == nil {
+		logger.Log.Error("No default stream found for the connection")
+		return nil
 	}
 
-	if packagerCode == 1 {
-		qsi.PackageEncoder = &packager.PROTO_ENCODE{}
-	}
+	go func() {
+		for {
 
+			// read
+			sizeBuffer := make([]byte, 1) // Adjust size as needed
+			_, err := defaultStream.Read(sizeBuffer)
+			if err != nil && err != io.EOF {
+				logger.Log.Error("Failed to read from stream", "stack", err)
+			}
+
+		}
+	}()
+
+	return nil
 }
