@@ -33,21 +33,24 @@ func main() {
 	}
 	fmt.Println("connection accepted")
 
-	newStream, err := c.AcceptStream(ctx)
+	newStream, err := c.OpenStreamSync(ctx)
 	if err != nil {
-		fmt.Println("Failed to Accept stream")
+		fmt.Println("Failed to start stream")
 		return
 	}
 	defer newStream.Close()
 
-	message := dataframe.ACK_FRAME{}
+	message := dataframe.ACK_FRAME{
+		PackId:    0,
+		StreamId:  int32(newStream.StreamID()),
+		AckStatus: true,
+	}
 
-	err = serializer.Receive(ctx, newStream, &message)
+	err = serializer.Send(ctx, newStream, &message)
 	if err != nil {
-		logger.Log.Error("Failed to deserialize package", "stack", err)
+		logger.Log.Error("Failed to serialize and send package", "stack", err)
 		return
 	}
-	fmt.Println("received Message ", message.GetStreamId(), message.GetAckStatus(), message.GetPackId())
 
 	for {
 		input := ReadInput()

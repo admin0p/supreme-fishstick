@@ -1,39 +1,13 @@
 package main
 
-import (
-	dataframe "github.com/admin0p/supreme-fishstick/proto"
-	"google.golang.org/protobuf/proto"
-)
-
-// func main() {
-
-// 	quicServer := &server.QUIC_SERVER_INSTANCE{
-// 		HostName: "localhost",
-// 		Port:     4242,
-// 	}
-
-// 	quicServer.StartServer(nil, 1)
-// }
-
-type PROTO_MESSAGE_DUMMY struct {
-	proto.Message
-}
+import "github.com/admin0p/supreme-fishstick/server"
 
 func main() {
 
-	msg := dataframe.MESSAGE_FRAME{
-		From:    "client1",
-		Message: "Hello, World!",
+	quicServer := &server.QUIC_SERVER_INSTANCE{
+		HostName: "localhost",
+		Port:     4242,
 	}
 
-	x, err := proto.Marshal(&msg)
-	if err != nil {
-		panic(err)
-	}
-	result := PROTO_MESSAGE_DUMMY{}
-	err = proto.Unmarshal(x, &result)
-	if err != nil {
-		panic(err)
-	}
-	println("Message:", result.Message.ProtoReflect().Type())
+	quicServer.StartServer(nil, 1)
 }
