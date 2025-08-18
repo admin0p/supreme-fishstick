@@ -26,13 +26,12 @@ message ERROR_FRAME {
 // actual message frame
 message MESSAGE_FRAME {
     string token = 1; // token for authentication
-    string messageId = 2; // unique identifier for the message
-    string from = 3; // client ID ( the ID provided by the client )
-    string to = 4; // client ID | SERVER ( the ID provided by the client )
-    string type = 5; // type of message ( e.g. text, image, file, etc. )
-    string timestamp = 6; // timestamp of the message in ISO 8601 format
-    string messageFormat = 7; // format of the message ( e.g. text, json, xml, etc. )
-    string message = 8;  // the actual message content
-    int64 packId = 9; // unique identifier for the message 
-    int32 streamId = 10; // stream identifier
+    string from = 2; // client ID ( the ID provided by the client )
+    string to = 3; // client ID | SERVER ( the ID provided by the client )
+    string type = 4; // type of message ( e.g. text, image, file, etc. )
+    string timestamp = 5; // timestamp of the message in ISO 8601 format
+    string messageFormat = 6; // format of the message ( e.g. text, json, xml, etc. )
+    int64 messageId = 7; // unique identifier for the message
+    bytes payload = 8;  // the actual message content
+    int32 streamId = 9; // stream identifier
 }

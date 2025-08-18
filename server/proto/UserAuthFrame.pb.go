@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: proto/UserAuthFrame.proto
+// source: server/proto/UserAuthFrame.proto
 
 package dataframe
 
@@ -34,7 +34,7 @@ type ADD_CLIENT_REQUEST_FRAME struct {
 
 func (x *ADD_CLIENT_REQUEST_FRAME) Reset() {
 	*x = ADD_CLIENT_REQUEST_FRAME{}
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[0]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +46,7 @@ func (x *ADD_CLIENT_REQUEST_FRAME) String() string {
 func (*ADD_CLIENT_REQUEST_FRAME) ProtoMessage() {}
 
 func (x *ADD_CLIENT_REQUEST_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[0]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +59,7 @@ func (x *ADD_CLIENT_REQUEST_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ADD_CLIENT_REQUEST_FRAME.ProtoReflect.Descriptor instead.
 func (*ADD_CLIENT_REQUEST_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_UserAuthFrame_proto_rawDescGZIP(), []int{0}
+	return file_server_proto_UserAuthFrame_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ADD_CLIENT_REQUEST_FRAME) GetUniqueClientId() string {
@@ -103,7 +103,7 @@ type CLIENT_AUTH_FRAME struct {
 
 func (x *CLIENT_AUTH_FRAME) Reset() {
 	*x = CLIENT_AUTH_FRAME{}
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[1]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *CLIENT_AUTH_FRAME) String() string {
 func (*CLIENT_AUTH_FRAME) ProtoMessage() {}
 
 func (x *CLIENT_AUTH_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[1]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *CLIENT_AUTH_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CLIENT_AUTH_FRAME.ProtoReflect.Descriptor instead.
 func (*CLIENT_AUTH_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_UserAuthFrame_proto_rawDescGZIP(), []int{1}
+	return file_server_proto_UserAuthFrame_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CLIENT_AUTH_FRAME) GetUniqueClientId() string {
@@ -172,7 +172,7 @@ type CLIENT_AUTH_RESPONSE_FRAME struct {
 
 func (x *CLIENT_AUTH_RESPONSE_FRAME) Reset() {
 	*x = CLIENT_AUTH_RESPONSE_FRAME{}
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[2]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -184,7 +184,7 @@ func (x *CLIENT_AUTH_RESPONSE_FRAME) String() string {
 func (*CLIENT_AUTH_RESPONSE_FRAME) ProtoMessage() {}
 
 func (x *CLIENT_AUTH_RESPONSE_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_UserAuthFrame_proto_msgTypes[2]
+	mi := &file_server_proto_UserAuthFrame_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -197,7 +197,7 @@ func (x *CLIENT_AUTH_RESPONSE_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CLIENT_AUTH_RESPONSE_FRAME.ProtoReflect.Descriptor instead.
 func (*CLIENT_AUTH_RESPONSE_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_UserAuthFrame_proto_rawDescGZIP(), []int{2}
+	return file_server_proto_UserAuthFrame_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CLIENT_AUTH_RESPONSE_FRAME) GetSfClientId() string {
@@ -228,11 +228,11 @@ func (x *CLIENT_AUTH_RESPONSE_FRAME) GetStreamId() int32 {
 	return 0
 }
 
-var File_proto_UserAuthFrame_proto protoreflect.FileDescriptor
+var File_server_proto_UserAuthFrame_proto protoreflect.FileDescriptor
 
-const file_proto_UserAuthFrame_proto_rawDesc = "" +
+const file_server_proto_UserAuthFrame_proto_rawDesc = "" +
 	"\n" +
-	"\x19proto/UserAuthFrame.proto\x12\tDataFrame\"\x8e\x01\n" +
+	" server/proto/UserAuthFrame.proto\x12\tDataFrame\"\x8e\x01\n" +
 	"\x18ADD_CLIENT_REQUEST_FRAME\x12&\n" +
 	"\x0euniqueClientId\x18\x01 \x01(\tR\x0euniqueClientId\x12\x16\n" +
 	"\x06secret\x18\x02 \x01(\tR\x06secret\x12\x16\n" +
@@ -252,24 +252,24 @@ const file_proto_UserAuthFrame_proto_rawDesc = "" +
 	"\bstreamId\x18\x04 \x01(\x05R\bstreamIdB\x13Z\x11./proto;dataframeb\x06proto3"
 
 var (
-	file_proto_UserAuthFrame_proto_rawDescOnce sync.Once
-	file_proto_UserAuthFrame_proto_rawDescData []byte
+	file_server_proto_UserAuthFrame_proto_rawDescOnce sync.Once
+	file_server_proto_UserAuthFrame_proto_rawDescData []byte
 )
 
-func file_proto_UserAuthFrame_proto_rawDescGZIP() []byte {
-	file_proto_UserAuthFrame_proto_rawDescOnce.Do(func() {
-		file_proto_UserAuthFrame_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_UserAuthFrame_proto_rawDesc), len(file_proto_UserAuthFrame_proto_rawDesc)))
+func file_server_proto_UserAuthFrame_proto_rawDescGZIP() []byte {
+	file_server_proto_UserAuthFrame_proto_rawDescOnce.Do(func() {
+		file_server_proto_UserAuthFrame_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_server_proto_UserAuthFrame_proto_rawDesc), len(file_server_proto_UserAuthFrame_proto_rawDesc)))
 	})
-	return file_proto_UserAuthFrame_proto_rawDescData
+	return file_server_proto_UserAuthFrame_proto_rawDescData
 }
 
-var file_proto_UserAuthFrame_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_proto_UserAuthFrame_proto_goTypes = []any{
+var file_server_proto_UserAuthFrame_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_server_proto_UserAuthFrame_proto_goTypes = []any{
 	(*ADD_CLIENT_REQUEST_FRAME)(nil),   // 0: DataFrame.ADD_CLIENT_REQUEST_FRAME
 	(*CLIENT_AUTH_FRAME)(nil),          // 1: DataFrame.CLIENT_AUTH_FRAME
 	(*CLIENT_AUTH_RESPONSE_FRAME)(nil), // 2: DataFrame.CLIENT_AUTH_RESPONSE_FRAME
 }
-var file_proto_UserAuthFrame_proto_depIdxs = []int32{
+var file_server_proto_UserAuthFrame_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -277,26 +277,26 @@ var file_proto_UserAuthFrame_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_UserAuthFrame_proto_init() }
-func file_proto_UserAuthFrame_proto_init() {
-	if File_proto_UserAuthFrame_proto != nil {
+func init() { file_server_proto_UserAuthFrame_proto_init() }
+func file_server_proto_UserAuthFrame_proto_init() {
+	if File_server_proto_UserAuthFrame_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_UserAuthFrame_proto_rawDesc), len(file_proto_UserAuthFrame_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_proto_UserAuthFrame_proto_rawDesc), len(file_server_proto_UserAuthFrame_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_proto_UserAuthFrame_proto_goTypes,
-		DependencyIndexes: file_proto_UserAuthFrame_proto_depIdxs,
-		MessageInfos:      file_proto_UserAuthFrame_proto_msgTypes,
+		GoTypes:           file_server_proto_UserAuthFrame_proto_goTypes,
+		DependencyIndexes: file_server_proto_UserAuthFrame_proto_depIdxs,
+		MessageInfos:      file_server_proto_UserAuthFrame_proto_msgTypes,
 	}.Build()
-	File_proto_UserAuthFrame_proto = out.File
-	file_proto_UserAuthFrame_proto_goTypes = nil
-	file_proto_UserAuthFrame_proto_depIdxs = nil
+	File_server_proto_UserAuthFrame_proto = out.File
+	file_server_proto_UserAuthFrame_proto_goTypes = nil
+	file_server_proto_UserAuthFrame_proto_depIdxs = nil
 }

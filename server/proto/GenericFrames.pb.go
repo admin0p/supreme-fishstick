@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.3
-// source: proto/GenericFrames.proto
+// source: server/proto/GenericFrames.proto
 
 package dataframe
 
@@ -33,7 +33,7 @@ type ACK_FRAME struct {
 
 func (x *ACK_FRAME) Reset() {
 	*x = ACK_FRAME{}
-	mi := &file_proto_GenericFrames_proto_msgTypes[0]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +45,7 @@ func (x *ACK_FRAME) String() string {
 func (*ACK_FRAME) ProtoMessage() {}
 
 func (x *ACK_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_GenericFrames_proto_msgTypes[0]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *ACK_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ACK_FRAME.ProtoReflect.Descriptor instead.
 func (*ACK_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_GenericFrames_proto_rawDescGZIP(), []int{0}
+	return file_server_proto_GenericFrames_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ACK_FRAME) GetPackId() int64 {
@@ -98,7 +98,7 @@ type ERROR_FRAME struct {
 
 func (x *ERROR_FRAME) Reset() {
 	*x = ERROR_FRAME{}
-	mi := &file_proto_GenericFrames_proto_msgTypes[1]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +110,7 @@ func (x *ERROR_FRAME) String() string {
 func (*ERROR_FRAME) ProtoMessage() {}
 
 func (x *ERROR_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_GenericFrames_proto_msgTypes[1]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +123,7 @@ func (x *ERROR_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ERROR_FRAME.ProtoReflect.Descriptor instead.
 func (*ERROR_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_GenericFrames_proto_rawDescGZIP(), []int{1}
+	return file_server_proto_GenericFrames_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ERROR_FRAME) GetSfClientId() string {
@@ -179,22 +179,21 @@ func (x *ERROR_FRAME) GetStreamId() int32 {
 type MESSAGE_FRAME struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`                 // token for authentication
-	MessageId     string                 `protobuf:"bytes,2,opt,name=messageId,proto3" json:"messageId,omitempty"`         // unique identifier for the message
-	From          string                 `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`                   // client ID ( the ID provided by the client )
-	To            string                 `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`                       // client ID | SERVER ( the ID provided by the client )
-	Type          string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`                   // type of message ( e.g. text, image, file, etc. )
-	Timestamp     string                 `protobuf:"bytes,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`         // timestamp of the message in ISO 8601 format
-	MessageFormat string                 `protobuf:"bytes,7,opt,name=messageFormat,proto3" json:"messageFormat,omitempty"` // format of the message ( e.g. text, json, xml, etc. )
-	Message       string                 `protobuf:"bytes,8,opt,name=message,proto3" json:"message,omitempty"`             // the actual message content
-	PackId        int64                  `protobuf:"varint,9,opt,name=packId,proto3" json:"packId,omitempty"`              // unique identifier for the message
-	StreamId      int32                  `protobuf:"varint,10,opt,name=streamId,proto3" json:"streamId,omitempty"`         // stream identifier
+	From          string                 `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`                   // client ID ( the ID provided by the client )
+	To            string                 `protobuf:"bytes,3,opt,name=to,proto3" json:"to,omitempty"`                       // client ID | SERVER ( the ID provided by the client )
+	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`                   // type of message ( e.g. text, image, file, etc. )
+	Timestamp     string                 `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`         // timestamp of the message in ISO 8601 format
+	MessageFormat string                 `protobuf:"bytes,6,opt,name=messageFormat,proto3" json:"messageFormat,omitempty"` // format of the message ( e.g. text, json, xml, etc. )
+	MessageId     int64                  `protobuf:"varint,7,opt,name=messageId,proto3" json:"messageId,omitempty"`        // unique identifier for the message
+	Payload       []byte                 `protobuf:"bytes,8,opt,name=payload,proto3" json:"payload,omitempty"`             // the actual message content
+	StreamId      int32                  `protobuf:"varint,9,opt,name=streamId,proto3" json:"streamId,omitempty"`          // stream identifier
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MESSAGE_FRAME) Reset() {
 	*x = MESSAGE_FRAME{}
-	mi := &file_proto_GenericFrames_proto_msgTypes[2]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -206,7 +205,7 @@ func (x *MESSAGE_FRAME) String() string {
 func (*MESSAGE_FRAME) ProtoMessage() {}
 
 func (x *MESSAGE_FRAME) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_GenericFrames_proto_msgTypes[2]
+	mi := &file_server_proto_GenericFrames_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -219,19 +218,12 @@ func (x *MESSAGE_FRAME) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MESSAGE_FRAME.ProtoReflect.Descriptor instead.
 func (*MESSAGE_FRAME) Descriptor() ([]byte, []int) {
-	return file_proto_GenericFrames_proto_rawDescGZIP(), []int{2}
+	return file_server_proto_GenericFrames_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MESSAGE_FRAME) GetToken() string {
 	if x != nil {
 		return x.Token
-	}
-	return ""
-}
-
-func (x *MESSAGE_FRAME) GetMessageId() string {
-	if x != nil {
-		return x.MessageId
 	}
 	return ""
 }
@@ -271,18 +263,18 @@ func (x *MESSAGE_FRAME) GetMessageFormat() string {
 	return ""
 }
 
-func (x *MESSAGE_FRAME) GetMessage() string {
+func (x *MESSAGE_FRAME) GetMessageId() int64 {
 	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *MESSAGE_FRAME) GetPackId() int64 {
-	if x != nil {
-		return x.PackId
+		return x.MessageId
 	}
 	return 0
+}
+
+func (x *MESSAGE_FRAME) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
 }
 
 func (x *MESSAGE_FRAME) GetStreamId() int32 {
@@ -292,11 +284,11 @@ func (x *MESSAGE_FRAME) GetStreamId() int32 {
 	return 0
 }
 
-var File_proto_GenericFrames_proto protoreflect.FileDescriptor
+var File_server_proto_GenericFrames_proto protoreflect.FileDescriptor
 
-const file_proto_GenericFrames_proto_rawDesc = "" +
+const file_server_proto_GenericFrames_proto_rawDesc = "" +
 	"\n" +
-	"\x19proto/GenericFrames.proto\x12\tDataFrame\"]\n" +
+	" server/proto/GenericFrames.proto\x12\tDataFrame\"]\n" +
 	"\tACK_FRAME\x12\x16\n" +
 	"\x06packId\x18\x01 \x01(\x03R\x06packId\x12\x1a\n" +
 	"\bstreamId\x18\x02 \x01(\x05R\bstreamId\x12\x1c\n" +
@@ -310,39 +302,37 @@ const file_proto_GenericFrames_proto_rawDesc = "" +
 	"\x05stack\x18\x04 \x01(\tR\x05stack\x12\x16\n" +
 	"\x06packId\x18\x05 \x01(\x03R\x06packId\x12\x12\n" +
 	"\x04code\x18\x06 \x01(\x05R\x04code\x12\x1a\n" +
-	"\bstreamId\x18\a \x01(\x05R\bstreamId\"\x8d\x02\n" +
+	"\bstreamId\x18\a \x01(\x05R\bstreamId\"\xf5\x01\n" +
 	"\rMESSAGE_FRAME\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1c\n" +
-	"\tmessageId\x18\x02 \x01(\tR\tmessageId\x12\x12\n" +
-	"\x04from\x18\x03 \x01(\tR\x04from\x12\x0e\n" +
-	"\x02to\x18\x04 \x01(\tR\x02to\x12\x12\n" +
-	"\x04type\x18\x05 \x01(\tR\x04type\x12\x1c\n" +
-	"\ttimestamp\x18\x06 \x01(\tR\ttimestamp\x12$\n" +
-	"\rmessageFormat\x18\a \x01(\tR\rmessageFormat\x12\x18\n" +
-	"\amessage\x18\b \x01(\tR\amessage\x12\x16\n" +
-	"\x06packId\x18\t \x01(\x03R\x06packId\x12\x1a\n" +
-	"\bstreamId\x18\n" +
-	" \x01(\x05R\bstreamIdB\x13Z\x11./proto;dataframeb\x06proto3"
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x12\n" +
+	"\x04from\x18\x02 \x01(\tR\x04from\x12\x0e\n" +
+	"\x02to\x18\x03 \x01(\tR\x02to\x12\x12\n" +
+	"\x04type\x18\x04 \x01(\tR\x04type\x12\x1c\n" +
+	"\ttimestamp\x18\x05 \x01(\tR\ttimestamp\x12$\n" +
+	"\rmessageFormat\x18\x06 \x01(\tR\rmessageFormat\x12\x1c\n" +
+	"\tmessageId\x18\a \x01(\x03R\tmessageId\x12\x18\n" +
+	"\apayload\x18\b \x01(\fR\apayload\x12\x1a\n" +
+	"\bstreamId\x18\t \x01(\x05R\bstreamIdB\x13Z\x11./proto;dataframeb\x06proto3"
 
 var (
-	file_proto_GenericFrames_proto_rawDescOnce sync.Once
-	file_proto_GenericFrames_proto_rawDescData []byte
+	file_server_proto_GenericFrames_proto_rawDescOnce sync.Once
+	file_server_proto_GenericFrames_proto_rawDescData []byte
 )
 
-func file_proto_GenericFrames_proto_rawDescGZIP() []byte {
-	file_proto_GenericFrames_proto_rawDescOnce.Do(func() {
-		file_proto_GenericFrames_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_GenericFrames_proto_rawDesc), len(file_proto_GenericFrames_proto_rawDesc)))
+func file_server_proto_GenericFrames_proto_rawDescGZIP() []byte {
+	file_server_proto_GenericFrames_proto_rawDescOnce.Do(func() {
+		file_server_proto_GenericFrames_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_server_proto_GenericFrames_proto_rawDesc), len(file_server_proto_GenericFrames_proto_rawDesc)))
 	})
-	return file_proto_GenericFrames_proto_rawDescData
+	return file_server_proto_GenericFrames_proto_rawDescData
 }
 
-var file_proto_GenericFrames_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_proto_GenericFrames_proto_goTypes = []any{
+var file_server_proto_GenericFrames_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_server_proto_GenericFrames_proto_goTypes = []any{
 	(*ACK_FRAME)(nil),     // 0: DataFrame.ACK_FRAME
 	(*ERROR_FRAME)(nil),   // 1: DataFrame.ERROR_FRAME
 	(*MESSAGE_FRAME)(nil), // 2: DataFrame.MESSAGE_FRAME
 }
-var file_proto_GenericFrames_proto_depIdxs = []int32{
+var file_server_proto_GenericFrames_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -350,26 +340,26 @@ var file_proto_GenericFrames_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_GenericFrames_proto_init() }
-func file_proto_GenericFrames_proto_init() {
-	if File_proto_GenericFrames_proto != nil {
+func init() { file_server_proto_GenericFrames_proto_init() }
+func file_server_proto_GenericFrames_proto_init() {
+	if File_server_proto_GenericFrames_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_GenericFrames_proto_rawDesc), len(file_proto_GenericFrames_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_proto_GenericFrames_proto_rawDesc), len(file_server_proto_GenericFrames_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_proto_GenericFrames_proto_goTypes,
-		DependencyIndexes: file_proto_GenericFrames_proto_depIdxs,
-		MessageInfos:      file_proto_GenericFrames_proto_msgTypes,
+		GoTypes:           file_server_proto_GenericFrames_proto_goTypes,
+		DependencyIndexes: file_server_proto_GenericFrames_proto_depIdxs,
+		MessageInfos:      file_server_proto_GenericFrames_proto_msgTypes,
 	}.Build()
-	File_proto_GenericFrames_proto = out.File
-	file_proto_GenericFrames_proto_goTypes = nil
-	file_proto_GenericFrames_proto_depIdxs = nil
+	File_server_proto_GenericFrames_proto = out.File
+	file_server_proto_GenericFrames_proto_goTypes = nil
+	file_server_proto_GenericFrames_proto_depIdxs = nil
 }

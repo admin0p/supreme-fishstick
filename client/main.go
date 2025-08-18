@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/admin0p/supreme-fishstick/logger"
-	dataframe "github.com/admin0p/supreme-fishstick/proto"
 	"github.com/admin0p/supreme-fishstick/serializer"
+	dataframe "github.com/admin0p/supreme-fishstick/server/proto"
 	"github.com/quic-go/quic-go"
 )
 
@@ -59,12 +59,11 @@ func main() {
 		}
 
 		payload := dataframe.MESSAGE_FRAME{
-			Message:       input,
+			Payload:       []byte(input),
 			From:          c.LocalAddr().String(),
 			To:            c.RemoteAddr().String(),
 			MessageFormat: "string",
 			Type:          "message",
-			PackId:        message.GetPackId() + 1,
 		}
 
 		err = serializer.Send(ctx, newStream, &payload)
