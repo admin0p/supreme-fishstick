@@ -9,6 +9,6 @@ var Log *slog.Logger
 
 // initiating custom logger
 func init() {
-	logHandler := slog.NewTextHandler(os.Stdout, nil)
+	logHandler := slog.NewJSONHandler(os.Stdout, nil)
 	Log = slog.New(logHandler)
 }

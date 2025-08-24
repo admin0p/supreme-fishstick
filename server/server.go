@@ -4,8 +4,11 @@ package server
 import (
 	"context"
 	"crypto/tls"
+	"os"
+	"os/signal"
 	"strconv"
 	"sync"
+	"syscall"
 
 	"github.com/admin0p/supreme-fishstick/logger"
 	mock "github.com/admin0p/supreme-fishstick/server/mocks"
@@ -14,7 +17,10 @@ import (
 
 type ACTIVE_CLIENT_CONN map[string]*QuicConn
 type ACTIVE_STREAM map[string]*quic.Stream
-type HANDLER func(ctx context.Context) error
+type HANDLER interface {
+	AuthHandler(SR *SF_REQ_CONTEXT) (bool, error)
+	messageHandler(SR *SF_REQ_CONTEXT) error
+}
 
 type QUIC_SERVER_INSTANCE struct {
 	HostName   string
@@ -32,50 +38,53 @@ process the next subsequent request in non blocking fashion
 func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode int) {
 
 	qsi.assignServerDefaults(packagerCode)
-
 	bindAddress := qsi.generateListenAddress()
+
 	quicListener, err := quic.ListenAddr(
 		bindAddress,
 		qsi.Tls,
 		config,
 	)
-
 	if err != nil {
 		logger.Log.Error("Failed to listen on bind address", "address", bindAddress, "stack", err)
 		panic(err)
 	}
 	logger.Log.Info("QUIC server started", "address", bindAddress)
 
-	for {
-		connContext := context.Background()
+	// check for termination
+	osSignal := make(chan os.Signal, 1)
+	signal.Notify(osSignal, os.Interrupt, syscall.SIGTERM)
+	quitSig := make(chan bool, 1)
+	go func() {
+		sig := <-osSignal
+		logger.Log.Info("Received Quit signal, quitting gracefully ...", "signal", sig)
+		quitSig <- true
+	}()
 
-		newConn := &QuicConn{UpstreamServer: qsi, ActiveStream: make(ACTIVE_STREAM)}
-		newConn.Conn, err = quicListener.Accept(connContext)
+	for !<-quitSig {
+		baseCtx := context.Background()
+		newConn, err := quicListener.Accept(baseCtx)
 		if err != nil {
-			logger.Log.Error("Failed to accept connection", "stack", err)
-			continue
+			logger.Log.Error("Error accepting connection", "stack", err)
+			break
+		}
+		clientAddr := newConn.RemoteAddr().String()
+		// prepare the new QUIC CONNECTION obj
+		qc := &QuicConn{
+			Conn:            newConn,
+			UpstreamServer:  qsi,
+			ActiveStream:    make(ACTIVE_STREAM),
+			IsAuthenticated: false,
 		}
 
-		stream, err := newConn.Conn.AcceptStream(connContext)
-		if err != nil {
-			logger.Log.Error("Failed to start stream", "stack", err)
-			continue
-		}
-		newConn.ActiveStream["default"] = stream
+		qsi.ActiveConn[clientAddr] = qc
 
-		// only when a stream has started we can consider the connection as active
-		clientAddr := newConn.Conn.RemoteAddr().String()
-		qsi.ActiveConn[clientAddr] = newConn
-		logger.Log.Info("New connection accepted", "remoteAddr", newConn.Conn.RemoteAddr().String(), "localAddr", newConn.Conn.LocalAddr().String())
-
-		//handle connection request
-		go func() {
-			for {
-				newConn.serve(connContext)
-			}
-		}()
+		qsi.Wg.Add(1)
+		go qc.serve(baseCtx)
 
 	}
+	// terminate all the go routines to prevent information loss
+	qsi.Wg.Wait()
 
 }
 

@@ -7,9 +7,8 @@ option go_package = "./proto;dataframe";
 
 // ACK Frame to send any sort of ack 
 message ACK_FRAME {
-    int64  packId = 1; // unique identifier for the packet
-    int32 streamId = 2; // stream identifier
-    bool ackStatus = 3; // true for success, false for failure
+    int32 streamId = 1; // stream identifier
+    bool ackStatus = 2; // true for success, false for failure
 }
 
 // This is a generic error frame that the server sends to the client on any error
@@ -18,9 +17,8 @@ message ERROR_FRAME {
     string type = 2; // type of err
     string messageFrame = 3; // message frame that caused the error
     string stack = 4; // stack trace
-    int64 packId = 5; // unique identifier for the message
-    int32 code = 6; // error code
-    int32 streamId = 7; // stream identifier
+    int32 code = 5; // error code
+    int32 streamId = 6; // stream identifier
 }
 
 // actual message frame

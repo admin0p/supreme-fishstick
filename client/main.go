@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/admin0p/supreme-fishstick/logger"
+	dataframe "github.com/admin0p/supreme-fishstick/proto"
 	"github.com/admin0p/supreme-fishstick/serializer"
-	dataframe "github.com/admin0p/supreme-fishstick/server/proto"
 	"github.com/quic-go/quic-go"
 )
 
@@ -41,7 +41,7 @@ func main() {
 	defer newStream.Close()
 
 	message := dataframe.ACK_FRAME{
-		PackId:    0,
+
 		StreamId:  int32(newStream.StreamID()),
 		AckStatus: true,
 	}

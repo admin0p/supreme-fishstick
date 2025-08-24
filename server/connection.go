@@ -4,92 +4,97 @@ import (
 	"context"
 
 	"github.com/admin0p/supreme-fishstick/logger"
-	dataframe "github.com/admin0p/supreme-fishstick/server/proto"
+	dataframe "github.com/admin0p/supreme-fishstick/proto"
 	"github.com/quic-go/quic-go"
 	"google.golang.org/protobuf/proto"
 )
 
 type QuicConn struct {
-	Conn           *quic.Conn
-	UpstreamServer *QUIC_SERVER_INSTANCE
-	ActiveStream   ACTIVE_STREAM
+	Conn            *quic.Conn
+	UpstreamServer  *QUIC_SERVER_INSTANCE
+	ActiveStream    ACTIVE_STREAM
+	IsAuthenticated bool
 }
 
-// this function should be a closure type that can take in custom handler and process request based on that
-// this is for a single connection only
-// should be run in a goroutine
 func (qc *QuicConn) serve(ctx context.Context) {
-
-	defaultStream := qc.ActiveStream["default"]
-	if defaultStream == nil {
-		logger.Log.Error("No default stream found for the connection")
+	// authenticate the client 1st
+	authStream, err := qc.Conn.OpenStreamSync(ctx)
+	if err != nil {
+		logger.Log.Error("Failed to open auth stream", "stack", err)
+		return
+	}
+	err = qc.authenticate(ctx, authStream)
+	if err != nil {
 		return
 	}
 
-	// TODO: check for quit signal
-	for {
-
-		rawPayload, err := readBuffer(defaultStream)
-		if err != nil {
-			logger.Log.Error("Failed to read buffer from stream", "stack", err)
-			break
-		}
-
-		messageFrame := &dataframe.MESSAGE_FRAME{}
-		err = proto.Unmarshal(*rawPayload, messageFrame)
-		if err != nil {
-			logger.Log.Error("Failed to unmarshal protobuf message", "stack", err)
-			break
-		}
-
-		logger.Log.Info("Received message frame", "message", messageFrame.Payload)
-		// process using handler
-
-		// this will ideally be a ref from qsi or upstream server
-		err = RequestHandler(messageFrame, defaultStream)
-		if err != nil {
-			logger.Log.Error("Failed to handle request", "stack", err)
-		}
-
-	}
-
-	return
-}
-
-func (qc *QuicConn) GetStreamFromClientId(clientId string) (*quic.Stream, error) {
-
-	clientConn, ok := qc.UpstreamServer.ActiveConn[clientId]
-	if !ok {
-		logger.Log.Error("Client connection not found", "clientId", clientId)
-		return nil, nil
-	}
-	stream, ok := clientConn.ActiveStream["default"]
-	if !ok {
-		logger.Log.Error("Stream not found for client", "clientId", clientId)
-		return nil, nil
-	}
-
-	return stream, nil
-}
-
-func RequestHandler(request *dataframe.MESSAGE_FRAME, stream *quic.Stream) error {
-	logger.Log.Info("Handling request", "message", request.GetPayload())
-
-	// Here you can implement your logic to handle the request
-	// For example, you might want to send an ACK response back
-
-	ackFrame := &dataframe.ACK_FRAME{
-		PackId:    request.GetMessageId() + 1,
-		StreamId:  int32(request.GetStreamId()),
-		AckStatus: true,
-	}
-	rawAckBuffer, err := proto.Marshal(ackFrame)
+	qc.ActiveStream["SESSION"], err = qc.Conn.AcceptStream(ctx)
 	if err != nil {
-		logger.Log.Error("Failed to marshal ACK frame", "stack", err)
+		logger.Log.Error("Failed to accept session stream", "stack", err)
+		return
+	}
+
+	for {
+		qc.RequestHandler(ctx)
+	}
+
+}
+
+func (qc *QuicConn) authenticate(ctx context.Context, authStream *quic.Stream) error {
+	// read the buffer that constructs the request obj for auth
+
+	qc.ActiveStream["AUTH"] = authStream
+	defer authStream.Close()
+
+	rawAuthPayload, err := readBuffer(authStream)
+	if err != nil {
+		return err
+	}
+	authFrame := &dataframe.CLIENT_AUTH_REQUEST_FRAME{}
+	err = proto.Unmarshal(*rawAuthPayload, authFrame)
+	if err != nil {
+		logger.Log.Error("Failed to unmarshal auth frame", "stack", err)
 		return err
 	}
 
-	sendBuffer(&rawAckBuffer, stream)
-	return nil
+	// prepare the request obj
+	newAuthReq := SF_REQ_CONTEXT{
+		Ctx:            ctx,
+		ProtoPkg:       authFrame,
+		Payload:        rawAuthPayload,
+		upstreamServer: qc.UpstreamServer,
+	}
 
+	// call the auth handler
+	qc.IsAuthenticated, err = qc.UpstreamServer.Handler.AuthHandler(&newAuthReq)
+	if err != nil || !qc.IsAuthenticated {
+		logger.Log.Info("Authentication failed", "stack", err)
+		return err
+	}
+
+	return nil
+}
+
+func (qc *QuicConn) RequestHandler(ctx context.Context) error {
+	// read form the buffer
+	rawPayload, err := readBuffer(qc.ActiveStream["SESSION"])
+	if err != nil {
+		return err
+	}
+	messageFrame := &dataframe.MESSAGE_FRAME{}
+	err = proto.Unmarshal(*rawPayload, messageFrame)
+	if err != nil {
+		logger.Log.Error("Failed to unmarshal message frame", "stack", err)
+		return err
+	}
+	// construct message Request Obj
+	newSessionReqObj := &SF_REQ_CONTEXT{
+		Ctx:            ctx,
+		ProtoPkg:       messageFrame,
+		Payload:        rawPayload,
+		upstreamServer: qc.UpstreamServer,
+	}
+	// call the message handler
+	qc.UpstreamServer.Handler.messageHandler(newSessionReqObj)
+	return nil
 }
