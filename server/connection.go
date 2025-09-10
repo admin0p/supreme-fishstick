@@ -61,6 +61,7 @@ func (qc *QuicConn) authenticate(ctx context.Context, authStream *quic.Stream) e
 	newAuthReq := SF_REQ_CONTEXT{
 		Ctx:            ctx,
 		ProtoPkg:       authFrame,
+		CurrentStream:  authStream,
 		Payload:        rawAuthPayload,
 		upstreamServer: qc.UpstreamServer,
 	}
@@ -77,7 +78,8 @@ func (qc *QuicConn) authenticate(ctx context.Context, authStream *quic.Stream) e
 
 func (qc *QuicConn) RequestHandler(ctx context.Context) error {
 	// read form the buffer
-	rawPayload, err := readBuffer(qc.ActiveStream["SESSION"])
+	currentStream := qc.ActiveStream["SESSION"]
+	rawPayload, err := readBuffer(currentStream)
 	if err != nil {
 		return err
 	}
@@ -92,6 +94,7 @@ func (qc *QuicConn) RequestHandler(ctx context.Context) error {
 		Ctx:            ctx,
 		ProtoPkg:       messageFrame,
 		Payload:        rawPayload,
+		CurrentStream:  currentStream,
 		upstreamServer: qc.UpstreamServer,
 	}
 	// call the message handler

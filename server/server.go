@@ -69,6 +69,7 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 			break
 		}
 		clientAddr := newConn.RemoteAddr().String()
+
 		// prepare the new QUIC CONNECTION obj
 		qc := &QuicConn{
 			Conn:            newConn,
@@ -83,6 +84,7 @@ func (qsi *QUIC_SERVER_INSTANCE) StartServer(config *quic.Config, packagerCode i
 		go qc.serve(baseCtx)
 
 	}
+
 	// terminate all the go routines to prevent information loss
 	qsi.Wg.Wait()
 
@@ -109,13 +111,5 @@ func (qsi *QUIC_SERVER_INSTANCE) assignServerDefaults(packagerCode int) {
 	if qsi.ActiveConn == nil {
 		qsi.ActiveConn = make(ACTIVE_CLIENT_CONN)
 	}
-
-	// if qsi.Streamer == nil {
-	// 	qsi.Streamer = &ProtoHandler{}
-	// }
-
-	// if packagerCode == 1 {
-	// 	qsi.PackageEncoder = &packager.PROTO_ENCODE{}
-	// }
 
 }
